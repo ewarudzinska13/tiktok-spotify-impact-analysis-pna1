@@ -1,0 +1,131 @@
+eko<- read.csv(file = "model_rw_.csv", sep=",", header = TRUE)
+N=length(eko$lnSpotify_Streams)
+N
+y=eko$lnSpotify_Streams
+x1=eko$Tyg
+x2=eko$Duration
+x3=eko$lnTikTokPosts
+x4=eko$lntfm
+x5=eko$lnsfm
+hist(y)
+#widzimy skośność lewostronną 
+
+#uklad równań
+uklad.rownan = function(b){
+  b0=b[1]
+  b1=b[2]
+  b2=b[3]
+  b3=b[4]
+  b4=b[5]
+  b5=b[6]
+  r1=sum(y-b0-b1*x1-b2*x2-b3*x3-b4*x4-b5*x5)
+  r2=sum(x1*(y-b0-b1*x1-b2*x2-b3*x3-b4*x4-b5*x5))
+  r3=sum(x2*(y-b0-b1*x1-b2*x2-b3*x3-b4*x4-b5*x5))
+  r4=sum(x3*(y-b0-b1*x1-b2*x2-b3*x3-b4*x4-b5*x5))
+  r5=sum(x4*(y-b0-b1*x1-b2*x2-b3*x3-b4*x4-b5*x5))
+  r6=sum(x5*(y-b0-b1*x1-b2*x2-b3*x3-b4*x4-b5*x5))
+  return(c(r1,r2, r3,r4,r5,r6))
+} 
+library("rootSolve")
+wynik=multiroot(f=uklad.rownan, start=c(0,0,0,0,0,0))
+wynik$root
+b0.hat = wynik$root[1]
+b0.hat
+b1.hat=wynik$root[2]
+b1.hat
+b2.hat = wynik$root[3]
+b2.hat
+b3.hat=wynik$root[4]
+b3.hat
+b4.hat = wynik$root[5]
+b4.hat
+b5.hat=wynik$root[6]
+b5.hat
+
+model <- lm(y ~ x1 + x2 + x3 + x4 + x5)
+summary_model <- summary(model)
+print(summary_model)
+cor_matrix <- cor(cbind(y, x1, x2, x3, x4, x5))
+print(cor_matrix)
+ 
+# Macierz wariancji - kowariancji
+m = rbind (( y - b0.hat -b1.hat*x1-b2.hat*x2-b3.hat*x3-b4.hat*x4-b5.hat*x5)/N ,
+           (x1*(y -b0.hat -b1.hat*x1-b2.hat*x2-b3.hat*x3-b4.hat*x4-b5.hat*x5))/ N,
+           (x2*(y -b0.hat -b1.hat*x1-b2.hat*x2-b3.hat*x3-b4.hat*x4-b5.hat*x5))/ N,
+           (x3*(y -b0.hat -b1.hat*x1-b2.hat*x2-b3.hat*x3-b4.hat*x4-b5.hat*x5))/ N,
+           (x4*(y -b0.hat -b1.hat*x1-b2.hat*x2-b3.hat*x3-b4.hat*x4-b5.hat*x5))/ N,
+           (x5*(y -b0.hat -b1.hat*x1-b2.hat*x2-b3.hat*x3-b4.hat*x4-b5.hat*x5))/ N         
+)
+ 
+D <- matrix(c(
+  1, mean(x1), mean(x2), mean(x3), mean(x4), mean(x5),
+  mean(x1), mean(x1^2), (sum(x1 * x2)) / N, (sum(x1 * x3)) / N, (sum(x1 * x4)) / N, (sum(x1 * x5)) / N, 
+  mean(x2), (sum(x1 * x2)) / N, mean(x2^2), (sum(x2 * x3)) / N, (sum(x2 * x4)) / N, (sum(x2 * x5)) / N, 
+  mean(x3), (sum(x1 * x3)) / N, (sum(x2 * x3)) / N, mean(x3^2), (sum(x3 * x4)) / N, (sum(x3 * x5)) / N, 
+  mean(x4), (sum(x1 * x4)) / N, (sum(x2 * x4)) / N, (sum(x3 * x4)) / N, mean(x4^2), (sum(x4 * x5)) / N, 
+  mean(x5), (sum(x1 * x5)) / N, (sum(x2 * x5)) / N, (sum(x3 * x5)) / N, (sum(x4 * x5)) / N, mean(x5^2)
+ 
+), nrow = 6, ncol = 6)
+D
+ 
+vcov = solve (D )%*% m %*%t(m )%*% t( solve (D))
+( std.errors = sqrt ( diag ( vcov )))
+# Porownanie z MNK
+model = lm(y ~ x1 + x2 + x3 + x4 + x5)
+( sum.mod = summary ( model )$ coefficients )
+ 
+# Porownanie w jednej tablicy
+porownanie = data.frame ( wynik$root , std.errors , sum.mod[ ,1], sum.mod[ ,2])
+colnames ( porownanie ) = c("MM.b", "MM.std.err ", " MNK.b", " MNK.std.err ")
+print ( porownanie )
+ 
+y<-unique(y)
+#spardzimy zgodność z rozkaldem normalnym
+mu.mm = mean(y)
+s2.mm = 1/N*sum((y-mean(y))^2)
+print(s2.mm)
+ks.test(x=y, "pnorm",mu.mm,  sqrt(s2.mm)) 
+# nie mamy rozkładu normalnego
+ 
+#p-value  
+std.err.b0.hat=sqrt(diag(vcov))[1]
+std.err.b0.hat
+std.err.b1.hat=sqrt(diag(vcov))[2]
+std.err.b1.hat
+std.err.b2.hat=sqrt(diag(vcov))[3]
+std.err.b2.hat
+std.err.b3.hat=sqrt(diag(vcov))[4]
+std.err.b3.hat
+std.err.b4.hat=sqrt(diag(vcov))[5]
+std.err.b4.hat
+std.err.b5.hat=sqrt(diag(vcov))[6]
+std.err.b5.hat
+ 
+z.test0 = (b0.hat-0)/std.err.b0.hat
+z.test0
+(2 * pt(abs(z.test0), 3183, lower.tail = FALSE))
+ 
+z.test1 = (b1.hat-0)/std.err.b1.hat
+z.test1
+(2 * pt(abs(z.test1), 3183, lower.tail = FALSE))
+ 
+z.test2 = (b2.hat-0)/std.err.b2.hat
+z.test2
+(2 * pt(abs(z.test2), 3183, lower.tail = FALSE)) 
+ 
+z.test3 = (b3.hat-0)/std.err.b3.hat
+z.test3
+(2 * pt(abs(z.test3), 3183, lower.tail = FALSE))
+ 
+z.test4 = (b4.hat-0)/std.err.b4.hat
+z.test4
+(2 * pt(abs(z.test4), 3183, lower.tail = FALSE))
+ 
+z.test5 = (b5.hat-0)/std.err.b5.hat
+z.test5
+(2 * pt(abs(z.test5), 3183, lower.tail = FALSE)
+
+#z test - zakładam, że b2=-1
+z.test=(b2.hat+1)/std.err.b2.hat
+z.test
+#wpada do obszaru krytycznego wiec odrzucam hipotezę, że b2.hat=-1
