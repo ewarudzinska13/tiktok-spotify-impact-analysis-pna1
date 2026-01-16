@@ -52,12 +52,12 @@ R6: Σ[x₅(y - β₀ - β₁x₁ - β₂x₂ - β₃x₃ - β₄x₄ - β₅x�
 
 ## Key Findings
 
-### Hypothesis 1: ✅ CONFIRMED
+### Hypothesis 1: CONFIRMED
 - **1% increase in TikTok posts → 0.16% increase in Spotify streams**
 - User Generated Content serves as an effective promotional channel, comparable to official content
 - Statistical significance: p < 0.05
 
-### Hypothesis 2: ✅ CONFIRMED  
+### Hypothesis 2: CONFIRMED  
 - **1% increase in TikTok followers → 0.022% increase in Spotify streams**
 - Effect is smaller than expected, possibly due to:
   - TikTok's relatively recent emergence in music promotion
