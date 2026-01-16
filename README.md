@@ -85,11 +85,4 @@ R6: Σ[x₅(y - β₀ - β₁x₁ - β₂x₂ - β₃x₃ - β₄x₄ - β₅x�
 - Comparison with **OLS (Ordinary Least Squares)** for validation
 - Libraries: `rootSolve` for solving system of equations
 
-## Academic Context
-
-- **Institution**: University of Warsaw, Faculty of Economic Sciences
-- **Program**: IT & Econometrics / Economics & Informatics (dual degree)
-- **Thesis Advisor**: Dr. Rafał Woźniak, Department of Statistics and Econometrics
-- **Completion**: December 2023
-
 
